@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -18,14 +19,31 @@ namespace WebApiTest.Controllers
             _products.Add("Smoothie");
         }
 
-        [HttpGet]
-        public IHttpActionResult ListItems()
+        private Dictionary<string, string> GetProduct(int id)
         {
-            // Demonstrating the IHttpActionResult method
-            //
-            // Alternatively, this method could return HttpResponseMessage and would
-            // call return Request.CreateResponse(HttpStatusCode.OK, _products.ToArray())
-            return Ok(_products.ToArray());
+            return new Dictionary<string, string>
+                {
+                    { "id", id.ToString() }, 
+                    { "name", _products[id] }
+                };
+        }
+
+        private List<Dictionary<string, string>> GetProductList()
+        {
+            var productList = from id in Enumerable.Range(0, _products.Count) select GetProduct(id);
+            return productList.ToList<Dictionary<string, string>>();
+        }
+
+        [HttpGet]
+        public HttpResponseMessage ListItems()
+        {
+            return new HttpResponseMessage()
+            {
+                Content = new JsonContent(new
+                {
+                    Data = GetProductList()
+                })
+            };
         }
 
         [HttpGet]
@@ -33,26 +51,69 @@ namespace WebApiTest.Controllers
         {
             if (id < _products.Count)
             {
-                return Request.CreateResponse(HttpStatusCode.OK, _products[id]);
+                //return Request.CreateResponse(HttpStatusCode.OK, _products[id]);
+                //JToken json = JObject.Parse("{ 'firstname' : 'Jason', 'lastname' : 'Voorhees' }");
+                return new HttpResponseMessage()
+                {
+                    Content = new JsonContent(new
+                    {
+                        Data = GetProduct(id)
+                    })
+                };
             }
             else
             {
-                return Request.CreateResponse(HttpStatusCode.NotFound);
+                return new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new JsonContent(new
+                    {
+                        Message = "Product not found"
+                    })
+                };
             }
         }
 
         [HttpPost]
         public HttpResponseMessage CreateItem([FromBody]string value)
         {
-            _products.Add(value);
-            return Request.CreateResponse(HttpStatusCode.OK, _products.ToArray());
+            dynamic json = JObject.Parse(value);
+            var name = json.name.Value;
+            _products.Add(name);
+            return new HttpResponseMessage()
+            {
+                Content = new JsonContent(new
+                {
+                    Data = GetProductList()
+                })
+            };
         }
 
         [HttpPut]
         public HttpResponseMessage UpdateItem(int id, [FromBody]string value)
         {
-            _products[id] = value;
-            return Request.CreateResponse(HttpStatusCode.OK, _products.ToArray());
+            if (id < _products.Count)
+            {
+                dynamic json = JObject.Parse(value);
+                var name = json.name.Value;
+                _products[id] = name;
+                return new HttpResponseMessage()
+                {
+                    Content = new JsonContent(new
+                    {
+                        Data = GetProductList()
+                    })
+                };
+            }
+            else
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new JsonContent(new
+                    {
+                        Message = "Product not found"
+                    })
+                };
+            }
         }
 
         [HttpDelete]
@@ -61,13 +122,30 @@ namespace WebApiTest.Controllers
             if (id < _products.Count)
             {
                 _products.RemoveAt(id);
-                return Request.CreateResponse(HttpStatusCode.OK, _products.ToArray());
+                return new HttpResponseMessage()
+                {
+                    Content = new JsonContent(new
+                    {
+                        Data = GetProductList()
+                    })
+                };
             }
             else
             {
-                return Request.CreateResponse(HttpStatusCode.NotFound);
+                return new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new JsonContent(new
+                    {
+                        Message = "Product not found"
+                    })
+                };
             }
         }
+    }
 
+    public class Product
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
     }
 }

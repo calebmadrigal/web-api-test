@@ -4,18 +4,47 @@ Demonstrates how to build a simple RESTful API with .NET WebAPI.
 
 ## Usage
 
-List:
+### List
 
 	curl http://localhost:49990/api/product
 
-Get:
+Example Response:
+
+	{
+	  "Data": [
+	    {
+	      "id": "0",
+	      "name": "Chai"
+	    },
+	    {
+	      "id": "1",
+	      "name": "Espresso"
+	    },
+	    {
+	      "id": "2",
+	      "name": "Smoothie"
+	    }
+	  ]
+	}
+
+### Get
 
 	curl http://localhost:49990/api/product/1
 
-Create:
+Example response:
 
-	curl -X POST http://localhost:49990/api/product -H "Content-Type: application/json" -d "\"Juice\""
+	{
+	  "Data": {
+	    "id": "1",
+	    "name": "Espresso"
+	  }
+	}
 
-Update:
+### Create
 
-	curl -X PUT http://localhost:49990/api/product/0 -H "Content-Type: application/json" -d "\"Chai Tea\""
+	curl -X POST http://localhost:49990/api/product -H "Content-Type: application/json" -d "\"{'name': 'Juice'}\""
+
+### Update
+
+	curl -X PUT http://localhost:49990/api/product/1 -H "Content-Type: application/json" -d "\"{'name': 'Juice'}\""
+
