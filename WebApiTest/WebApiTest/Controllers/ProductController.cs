@@ -10,28 +10,11 @@ namespace WebApiTest.Controllers
 {
     public class ProductController : ApiController
     {
-        List<string> _products = new List<string>();
+        private ProductRepository _productRepo;
 
         public ProductController()
         {
-            _products.Add("Chai");
-            _products.Add("Espresso");
-            _products.Add("Smoothie");
-        }
-
-        private Dictionary<string, string> GetProduct(int id)
-        {
-            return new Dictionary<string, string>
-                {
-                    { "id", id.ToString() }, 
-                    { "name", _products[id] }
-                };
-        }
-
-        private List<Dictionary<string, string>> GetProductList()
-        {
-            var productList = from id in Enumerable.Range(0, _products.Count) select GetProduct(id);
-            return productList.ToList<Dictionary<string, string>>();
+            _productRepo = ProductRepository.Instance;
         }
 
         [HttpGet]
@@ -41,7 +24,7 @@ namespace WebApiTest.Controllers
             {
                 Content = new JsonContent(new
                 {
-                    Data = GetProductList()
+                    Data = _productRepo.GetProductList()
                 })
             };
         }
@@ -49,13 +32,14 @@ namespace WebApiTest.Controllers
         [HttpGet]
         public HttpResponseMessage GetItem(int id)
         {
-            if (id < _products.Count)
+            var product = _productRepo.GetProduct(id);
+            if (product != null)
             {
                 return new HttpResponseMessage()
                 {
                     Content = new JsonContent(new
                     {
-                        Data = GetProduct(id)
+                        Data = product
                     })
                 };
             }
@@ -75,12 +59,12 @@ namespace WebApiTest.Controllers
         public HttpResponseMessage CreateItem([FromBody]dynamic json)
         {
             var name = json.name.Value;
-            _products.Add(name);
+            _productRepo.CreateProduct(name);
             return new HttpResponseMessage()
             {
                 Content = new JsonContent(new
                 {
-                    Data = GetProductList()
+                    Data = _productRepo.GetProductList()
                 })
             };
         }
@@ -88,15 +72,15 @@ namespace WebApiTest.Controllers
         [HttpPut]
         public HttpResponseMessage UpdateItem(int id, [FromBody]dynamic json)
         {
-            if (id < _products.Count)
+            var name = json.name.Value;
+            bool result = _productRepo.UpdateProduct(id, name);
+            if (result)
             {
-                var name = json.name.Value;
-                _products[id] = name;
                 return new HttpResponseMessage()
                 {
                     Content = new JsonContent(new
                     {
-                        Data = GetProductList()
+                        Data = _productRepo.GetProductList()
                     })
                 };
             }
@@ -115,14 +99,14 @@ namespace WebApiTest.Controllers
         [HttpDelete]
         public HttpResponseMessage DeleteItem(int id)
         {
-            if (id < _products.Count)
+            bool result = _productRepo.DeleteProduct(id);
+            if (result)
             {
-                _products.RemoveAt(id);
                 return new HttpResponseMessage()
                 {
                     Content = new JsonContent(new
                     {
-                        Data = GetProductList()
+                        Data = _productRepo.GetProductList()
                     })
                 };
             }
