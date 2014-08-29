@@ -51,8 +51,6 @@ namespace WebApiTest.Controllers
         {
             if (id < _products.Count)
             {
-                //return Request.CreateResponse(HttpStatusCode.OK, _products[id]);
-                //JToken json = JObject.Parse("{ 'firstname' : 'Jason', 'lastname' : 'Voorhees' }");
                 return new HttpResponseMessage()
                 {
                     Content = new JsonContent(new
