@@ -42,9 +42,9 @@ Example response:
 
 ### Create
 
-	curl -X POST http://localhost:49990/api/product -H "Content-Type: application/json" -d "\"{'name': 'Juice'}\""
+	curl -X POST http://localhost:49990/api/product -H "Content-Type: application/json" -d "{'name': 'Juice'}"
 
 ### Update
 
-	curl -X PUT http://localhost:49990/api/product/1 -H "Content-Type: application/json" -d "\"{'name': 'Juice'}\""
+	curl -X PUT http://localhost:49990/api/product/1 -H "Content-Type: application/json" -d "{'name': 'Juice'}"
 

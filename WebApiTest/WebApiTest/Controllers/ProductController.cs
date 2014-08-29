@@ -72,9 +72,8 @@ namespace WebApiTest.Controllers
         }
 
         [HttpPost]
-        public HttpResponseMessage CreateItem([FromBody]string value)
+        public HttpResponseMessage CreateItem([FromBody]dynamic json)
         {
-            dynamic json = JObject.Parse(value);
             var name = json.name.Value;
             _products.Add(name);
             return new HttpResponseMessage()
@@ -87,11 +86,10 @@ namespace WebApiTest.Controllers
         }
 
         [HttpPut]
-        public HttpResponseMessage UpdateItem(int id, [FromBody]string value)
+        public HttpResponseMessage UpdateItem(int id, [FromBody]dynamic json)
         {
             if (id < _products.Count)
             {
-                dynamic json = JObject.Parse(value);
                 var name = json.name.Value;
                 _products[id] = name;
                 return new HttpResponseMessage()
@@ -139,11 +137,5 @@ namespace WebApiTest.Controllers
                 };
             }
         }
-    }
-
-    public class Product
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
     }
 }
